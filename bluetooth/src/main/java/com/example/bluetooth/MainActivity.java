@@ -6,10 +6,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.util.Set;
 
@@ -21,11 +24,13 @@ public class MainActivity extends AppCompatActivity {
     public static final String TAG = "lvkaixuan";
     private static final int REQUEST_ENABLE = 1;
     private BluetoothAdapter mBluetoothAdapter;
+    private LinearLayout mRootView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mRootView = (LinearLayout)findViewById(R.id.rootView);
         init();
         getBlueToothDetail();
     }
@@ -60,6 +65,9 @@ public class MainActivity extends AppCompatActivity {
     //开始搜索蓝牙
     public void start(View view) {
         Log.d(TAG, "start: 开始搜索...");
+        addText("如果搜索不到,请手动打开蓝牙以及定位权限\n");
+        addText("开始搜索...");
+        addText("--------------搜索结果--------------");
         mBluetoothAdapter.startDiscovery();
         registerReceiver();
     }
@@ -79,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
     //停止搜索
     public void end(View view) {
         mBluetoothAdapter.cancelDiscovery();
+        addText("\n停止搜索");
     }
 
     private BroadcastReceiver mBluetoothReceiver = new BroadcastReceiver(){
@@ -90,10 +99,17 @@ public class MainActivity extends AppCompatActivity {
                 BluetoothDevice scanDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if(scanDevice == null || scanDevice.getName() == null) return;
                 Log.d(TAG, "搜索到了: name="+scanDevice.getName()+"  address="+scanDevice.getAddress());
-
+                addText("名称: "+scanDevice.getName()+"  地址: "+scanDevice.getAddress());
             }else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)){
             }
         }
 
     };
+
+    private void addText(String text) {
+        TextView textView = new TextView(MainActivity.this);
+        textView.setText(text);
+        textView.setTextColor(Color.BLACK);
+        mRootView.addView(textView);
+    }
 }
